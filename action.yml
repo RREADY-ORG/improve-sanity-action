@@ -1,0 +1,119 @@
+name: 'Improve Sanity Check'
+description: 'Check the sanity of improve using improve-selenium project'
+inputs:
+  run-against:
+    description: 'Run it against currrent repository backend code or a remote url. (local - remote)'
+    required: false
+    default: remote
+  api-base-url:
+    description: 'The API base url to run the tests against. Ignored if running against local setup.'
+    required: false
+    
+  admin-base-url:
+    description: 'The admin portal base url to run the tests against. Ignored if running against local setup.'
+    required: false
+    
+  app-base-url:
+    description: 'The application portal base url to run the tests against. Ignored if running against local setup.'
+    required: false
+    
+  access-key-id:
+    required: true
+  secret-access-key:
+    required: true
+  aws-region:
+    required: true
+    default: eu-central-1
+  sanity-secrets:
+    description: 'All of the secrets needed by selenium project for running test.'
+    required: true
+  dockerhub-username:
+    description: 'Only needed If running against local setup.'
+    required: true
+  dockerhub-access-token:
+    description: 'Only needed If running against local setup.'
+    required: true
+
+outputs:
+  sanity-failed:
+    value: ${{ steps.sanity-check.outputs.sanity-failed }}
+runs:
+  using: "composite"
+  steps:
+    - name: Login to Kickbox/Improve Staging ECR
+      uses: ngti/gh-ecr-login@v1
+      with:
+        access-key-id: ${{ inputs.access-key-id }}
+        secret-access-key: ${{ inputs.secret-access-key }}
+        region: ${{ inputs.aws-region }}
+
+    - name: Login to Docker Hub
+      if: ${{ inputs.run-against == 'local' }}
+      uses: docker/login-action@v1
+      with:
+        username: ${{ inputs.dockerhub-username }}
+        password: ${{ inputs.dockerhub-access-token }}
+    - name: Prepair sanity local setup
+      id: local-setup
+      if: ${{ inputs.run-against == 'local' }}
+      run: |
+        docker-compose -f docker-compose.test.yml up -d improve improve-frontend-portal improve-frontend-admin
+
+    - name: Find out the real urls to test against
+      id: real-urls
+      shell: bash
+      run: |
+        API_BASE_URL=$([ "$inputs.run-against" == 'local' ] && echo 'http://localhost:8080' || echo "${{ inputs.api-base-url }}")
+        APP_BASE_URL=$([ "$inputs.run-against" == 'local' ] && echo 'http://localhost:3001' || echo "${{ inputs.app-base-url }}")
+        ADMIN_BASE_URL=$([ "$inputs.run-against" == 'local' ] && echo 'http://localhost:3011' || echo "${{ inputs.admin-base-url }}")
+        echo "::set-output name=api-base-url::${API_BASE_URL}"
+        echo "::set-output name=app-base-url::${APP_BASE_URL}"
+        echo "::set-output name=admin-base-url::${ADMIN_BASE_URL}"
+    - name: Set up secrets
+      shell: bash
+      run: |
+        export $(echo "${{ inputs.sanity-secrets }}" | xargs)
+
+    - name: Wait for local setup to wake up
+      if: ${{ inputs.run-against == 'local' }}
+      shell: bash
+      run: |
+        is_up=0
+        timeout 2m \
+        while [ $is_up -ne 1 ]; do
+          curl http://localhost:8080/actuator/health 2> /dev/null && is_up=1 || is_up=0
+          sleep 1
+        done;
+        test $is_up -eq 1
+
+    - name: Run sanity-check extension against the required environment
+      id: sanity-check
+      shell: bash
+      run: |
+        mkdir /tmp/reports
+        chmod 777 /tmp/reports
+        FAILED=0
+        echo '${G_ADMIN_PASSWORD}' "${G_ADMIN_PASSWORD}"
+        echo '${{ env.G_ADMIN_PASSWORD}}' "${{ env.G_ADMIN_PASSWORD}}"
+        docker container run -v "/tmp/reports":"/home/testing/reports" --rm \
+          -e API_BASE_URL="${{ steps.real-urls.outputs.api-base-url }}" \
+          -e APP_BASE_URL="${{ steps.real-urls.outputs.app-base-url }}" \
+          -e ADMIN_BASE_URL="${{ steps.real-urls.outputs.admin-base-url }}" \
+          -e SELENIUM_USERNAME=${SELENIUM_USERNAME} \
+          -e SELENIUM_USER_PASSWORD=${SELENIUM_USER_PASSWORD} \
+          -e PROTON_MAIL=${PROTON_MAIL} \
+          -e PROTON_MAIL_PASSWORD=${PROTON_MAIL_PASSWORD} \
+          -e API_USER=${API_USER} \
+          -e API_USER_PASSWORD=${API_USER_PASSWORD} \
+          -e API_ADMIN_USER=${API_ADMIN_USER} \
+          -e API_ADMIN_PASSWORD=${API_ADMIN_PASSWORD} \
+          -e G_ADMIN_PASSWORD=${G_ADMIN_PASSWORD} \
+          -e G_USER_PASSWORD=${G_USER_PASSWORD} \
+          ${ECR_URL}/${IMPROVE_SELENIUM_IMAGE} || FAILED=1
+        echo "::set-output name=sanity-failed::$FAILED"
+
+    - name: Upload Sanity Results
+      uses: actions/upload-artifact@v2
+      with:
+        name: sanity-report
+        path: /tmp/reports
