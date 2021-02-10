@@ -13,13 +13,6 @@ inputs:
     description: 'The application portal base url to run the tests against. Ignored if running against local setup.'
     required: true
     
-  access-key-id:
-    required: true
-  secret-access-key:
-    required: true
-  aws-region:
-    required: true
-    default: eu-central-1
   sanity-secrets:
     description: 'All of the secrets needed by selenium project for running test.'
     required: true
@@ -43,6 +36,7 @@ runs:
         chmod 777 /tmp/reports
         export FAILED=0
         export $(echo "${{ inputs.sanity-secrets }}" | xargs)
+        echo testing username: $SELENIUM_USERNAME
         docker container run -v "/tmp/reports":"/home/testing/reports" --rm \
           -e API_BASE_URL="${{ inputs.api-base-url }}" \
           -e APP_BASE_URL="${{ inputs.app-base-url }}" \
