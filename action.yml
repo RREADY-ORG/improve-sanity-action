@@ -43,7 +43,7 @@ runs:
         rm -rf ${{ inputs.results-path }}
         mkdir ${{ inputs.results-path }}
         chmod 777 ${{ inputs.results-path }}
-        export FAILED=reports
+        export FAILED=1
         export $(echo "${{ inputs.sanity-secrets }}" | xargs)
         # docker container run -v "${{ inputs.results-path }}":"/home/testing/reports" --rm \
         #   -ereports inputs.api-base-url }}" \
@@ -65,7 +65,10 @@ runs:
     - name: Break if failed
       shell: bash
       run: |
-        if [ ${{ inputs.continue-if-failed }} -eq true ]
+        echo HELLO: ${{ inputs.continue-if-failed }}
+        if [ ${{ inputs.continue-if-failed }} -eq false ]
         then
+          echo BYE ${{ steps.sanity-check.outputs.sanity-failed }}
           test ${{ steps.sanity-check.outputs.sanity-failed }} -eq 0
         fi
+        echo BYE BYE BYE
