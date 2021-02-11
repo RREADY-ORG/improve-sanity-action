@@ -46,7 +46,7 @@ runs:
         chmod 777 ${{ inputs.results-path }}
         export FAILED=0
         docker container run -v "${{ inputs.results-path }}":"/home/testing/reports" --rm \
-          -ereports inputs.api-base-url }}" \
+          -e API_BASE_URL="${{ inputs.api-base-url }}" \
           -e APP_BASE_URL="${{ inputs.app-base-url }}" \
           -e ADMIN_BASE_URL="${{ inputs.admin-base-url }}" \
           -e SELENIUM_USERNAME=${SELENIUM_USERNAME} \
