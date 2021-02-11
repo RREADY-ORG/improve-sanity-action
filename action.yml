@@ -38,7 +38,7 @@ runs:
       run: |
         mkdir /tmp/reports
         chmod 777 /tmp/reports
-        export FAILED=1
+        export FAILED=0
         export $(echo "${{ inputs.sanity-secrets }}" | xargs)
         # docker container run -v "/tmp/reports":"/home/testing/reports" --rm \
         #   -e API_BASE_URL="${{ inputs.api-base-url }}" \
