@@ -24,6 +24,10 @@ inputs:
     description: 'If the checks fail, do not break the sequnce'
     required: true
     default: false
+  results-path:
+    description: 'The place to put the test results on'
+    required: true
+    default: /tmp/reports
 
 outputs:
   sanity-failed:
@@ -36,12 +40,13 @@ runs:
       id: sanity-check
       shell: bash
       run: |
-        mkdir /tmp/reports
-        chmod 777 /tmp/reports
-        export FAILED=0
+        rm -rf ${{ inputs.results-path }}
+        mkdir ${{ inputs.results-path }}
+        chmod 777 ${{ inputs.results-path }}
+        export FAILED=reports
         export $(echo "${{ inputs.sanity-secrets }}" | xargs)
-        # docker container run -v "/tmp/reports":"/home/testing/reports" --rm \
-        #   -e API_BASE_URL="${{ inputs.api-base-url }}" \
+        # docker container run -v "${{ inputs.results-path }}":"/home/testing/reports" --rm \
+        #   -ereports inputs.api-base-url }}" \
         #   -e APP_BASE_URL="${{ inputs.app-base-url }}" \
         #   -e ADMIN_BASE_URL="${{ inputs.admin-base-url }}" \
         #   -e SELENIUM_USERNAME=${SELENIUM_USERNAME} \
