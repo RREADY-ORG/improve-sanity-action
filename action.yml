@@ -36,7 +36,6 @@ runs:
         chmod 777 /tmp/reports
         export FAILED=0
         export $(echo "${{ inputs.sanity-secrets }}" | xargs)
-        echo testing username: $SELENIUM_USERNAME
         docker container run -v "/tmp/reports":"/home/testing/reports" --rm \
           -e API_BASE_URL="${{ inputs.api-base-url }}" \
           -e APP_BASE_URL="${{ inputs.app-base-url }}" \
