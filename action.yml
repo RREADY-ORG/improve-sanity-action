@@ -60,7 +60,7 @@ runs:
     - name: Break if failed
       shell: bash
       run: |
-        if [ ${{ inputs.continue-if-failed -eq true }} ]
+        if [ ${{ inputs.continue-if-failed }} -eq true ]
         then
           test ${{ steps.sanity-check.outputs.sanity-failed }} -eq 0
         fi
