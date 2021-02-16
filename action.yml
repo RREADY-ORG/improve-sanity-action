@@ -36,8 +36,7 @@ runs:
   using: "composite"
   steps:
 
-    - name: Run sanity-check extension against the required environment
-      id: sanity-check
+    - name: Wait for the API to start up
       shell: bash
       run: |
         echo "Waiting for the API to boot up (if it is recently started)"
@@ -54,6 +53,10 @@ runs:
         test $IS_UP -eq 1 || echo "::error::The API is not running"
         test $IS_UP -eq 1
 
+    - name: Run sanity-check extension against the required environment
+      id: sanity-check
+      shell: bash
+      run: |
         export $(echo "${{ inputs.sanity-secrets }}" | xargs)
         rm -rf ${{ inputs.results-path }}
         mkdir ${{ inputs.results-path }}
