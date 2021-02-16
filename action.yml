@@ -45,7 +45,7 @@ runs:
         mkdir ${{ inputs.results-path }}
         chmod 777 ${{ inputs.results-path }}
         export FAILED=0
-        docker container run -v "${{ inputs.results-path }}":"/home/testing/reports" --rm \
+        docker container run -v "${{ inputs.results-path }}":"/tmp/reports" --rm \
           -e API_BASE_URL="${{ inputs.api-base-url }}" \
           -e APP_BASE_URL="${{ inputs.app-base-url }}" \
           -e ADMIN_BASE_URL="${{ inputs.admin-base-url }}" \
