@@ -59,7 +59,7 @@ runs:
           -e API_ADMIN_PASSWORD=${API_ADMIN_PASSWORD} \
           -e G_ADMIN_PASSWORD=${G_ADMIN_PASSWORD} \
           -e G_USER_PASSWORD=${G_USER_PASSWORD} \
-          ${{ inputs.selenium-image }} || FAILED=1
+          --network=host ${{ inputs.selenium-image }} || FAILED=1
         echo "::set-output name=sanity-failed::$FAILED"
 
     - name: Break if failed
