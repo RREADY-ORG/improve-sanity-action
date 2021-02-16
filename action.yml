@@ -40,6 +40,20 @@ runs:
       id: sanity-check
       shell: bash
       run: |
+        echo "Waiting for the API to boot up (if it is recently started)"
+        for i in {1..60}
+        do
+          echo Waiting for a pulse...
+          curl -sLw "\n" "${{ inputs.api-base-url }}/actuator/health" && IS_UP=1 || IS_UP=0
+          if [ $IS_UP == 1 ]
+          then
+            break
+          fi
+          sleep 2
+        done
+        test $IS_UP -eq 1 || echo "::error::The API is not running"
+        test $IS_UP -eq 1
+
         export $(echo "${{ inputs.sanity-secrets }}" | xargs)
         rm -rf ${{ inputs.results-path }}
         mkdir ${{ inputs.results-path }}
