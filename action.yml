@@ -4,22 +4,18 @@ inputs:
   api-base-url:
     description: 'The API base url to run the tests against. Ignored if running against local setup.'
     required: true
-    
   admin-base-url:
     description: 'The admin portal base url to run the tests against. Ignored if running against local setup.'
     required: true
-    
   app-base-url:
     description: 'The application portal base url to run the tests against. Ignored if running against local setup.'
     required: true
-    
   sanity-secrets:
     description: 'All of the secrets needed by selenium project for running test.'
     required: true
   selenium-image:
     description: 'The url for selenium image'
     required: true
-    
   continue-if-failed:
     description: 'If the checks fail, do not break the sequnce'
     required: true
