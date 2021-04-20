@@ -74,6 +74,8 @@ runs:
           -e G_USER_PASSWORD=${G_USER_PASSWORD} \
           -e SSO_EMAIL=${SSO_EMAIL} \
           -e SSO_PASSWORD=${SSO_PASSWORD} \
+          -e NEXT_GEN_URL=${NEXT_GEN_URL} \
+          -e NEXT_GEN_ADMIN_URL=${NEXT_GEN_ADMIN_URL} \
           --network=host ${{ inputs.selenium-image }} || FAILED=1
         echo "::set-output name=sanity-failed::$FAILED"
 
