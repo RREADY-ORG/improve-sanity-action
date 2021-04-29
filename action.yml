@@ -24,6 +24,10 @@ inputs:
     description: 'The place to put the test results on'
     required: true
     default: /tmp/reports
+  suite:
+    description: 'The test suite. Default: RunAll.xml'
+    required: true
+    default: RunAll.xml
 
 outputs:
   sanity-failed:
@@ -58,6 +62,8 @@ runs:
         mkdir ${{ inputs.results-path }}
         chmod 777 ${{ inputs.results-path }}
         export FAILED=0
+        echo ./bin/improve-selenium "suites/${{ inputs.suite }}" -d "${{ inputs.results-path }}"
+
         docker container run -v "${{ inputs.results-path }}":"/tmp/reports" --rm \
           -e API_BASE_URL="${{ inputs.api-base-url }}" \
           -e APP_BASE_URL="${{ inputs.app-base-url }}" \
@@ -76,7 +82,8 @@ runs:
           -e SSO_PASSWORD=${SSO_PASSWORD} \
           -e KICKBOX_NG_URL=${KICKBOX_NG_URL} \
           -e KICKBOX_NG_ADMIN_URL=${KICKBOX_NG_ADMIN_URL} \
-          --network=host ${{ inputs.selenium-image }} || FAILED=1
+          --network=host -i ${{ inputs.selenium-image }} \
+          ./bin/improve-selenium "suites/${{ inputs.suite }}" -d "${{ inputs.results-path }}" || FAILED=1
         echo "::set-output name=sanity-failed::$FAILED"
 
     - name: Break if failed
