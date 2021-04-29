@@ -82,7 +82,7 @@ runs:
           -e SSO_PASSWORD=${SSO_PASSWORD} \
           -e KICKBOX_NG_URL=${KICKBOX_NG_URL} \
           -e KICKBOX_NG_ADMIN_URL=${KICKBOX_NG_ADMIN_URL} \
-          --network=host -it ${{ inputs.selenium-image }} \
+          --network=host -i ${{ inputs.selenium-image }} \
           ./bin/improve-selenium "suites/${{ inputs.suite }}" -d "${{ inputs.results-path }}" || FAILED=1
         echo "::set-output name=sanity-failed::$FAILED"
 
