@@ -15,6 +15,7 @@ steps:
       selenium-image: image-location
       continue-if-failed: true (default false)
       results-path: path/to/reports (default /tmp/reports)
+      suite: The test suite. Default: RunAll.xml
 ```
 
 The action outputs `sanity-failed` with `1` if the tests didn't pass.
