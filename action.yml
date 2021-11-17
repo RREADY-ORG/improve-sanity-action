@@ -70,6 +70,7 @@ runs:
           -e ADMIN_BASE_URL="${{ inputs.admin-base-url }}" \
           -e SELENIUM_USERNAME=${SELENIUM_USERNAME} \
           -e SELENIUM_USER_PASSWORD=${SELENIUM_USER_PASSWORD} \
+          -e SERVICES_URL=${SERVICES_URL} \
           -e PROTON_MAIL=${PROTON_MAIL} \
           -e PROTON_MAIL_PASSWORD=${PROTON_MAIL_PASSWORD} \
           -e SERVICES_USERNAME=${SERVICES_USERNAME} \
