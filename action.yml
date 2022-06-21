@@ -27,7 +27,7 @@ inputs:
   suite:
     description: 'The test suite. Default: RunAll.xml'
     required: true
-    default: RunAll.xml
+    default: RunCustom.xml
 
 outputs:
   sanity-failed:
@@ -62,31 +62,11 @@ runs:
         mkdir ${{ inputs.results-path }}
         chmod 777 ${{ inputs.results-path }}
         export FAILED=0
-        echo ./bin/improve-selenium "suites/${{ inputs.suite }}" -d "${{ inputs.results-path }}"
+        echo ./build/distributions/improve-selenium-1.0-SNAPSHOT/bin/improve-selenium "suites/${{ inputs.suite }}" -d "${{ inputs.results-path }}"
 
-        docker container run -v "${{ inputs.results-path }}":"/tmp/reports" --rm \
-          -e API_BASE_URL="${{ inputs.api-base-url }}" \
-          -e APP_BASE_URL="${{ inputs.app-base-url }}" \
-          -e ADMIN_BASE_URL="${{ inputs.admin-base-url }}" \
-          -e SELENIUM_USERNAME=${SELENIUM_USERNAME} \
-          -e SELENIUM_USER_PASSWORD=${SELENIUM_USER_PASSWORD} \
-          -e SERVICES_URL=${SERVICES_URL} \
-          -e PROTON_MAIL=${PROTON_MAIL} \
-          -e PROTON_MAIL_PASSWORD=${PROTON_MAIL_PASSWORD} \
-          -e SERVICES_USERNAME=${SERVICES_USERNAME} \
-          -e SERVICES_PASSWORD=${SERVICES_PASSWORD} \
-          -e API_USER=${API_USER} \
-          -e API_USER_PASSWORD=${API_USER_PASSWORD} \
-          -e API_ADMIN_USER=${API_ADMIN_USER} \
-          -e API_ADMIN_PASSWORD=${API_ADMIN_PASSWORD} \
-          -e G_ADMIN_PASSWORD=${G_ADMIN_PASSWORD} \
-          -e G_USER_PASSWORD=${G_USER_PASSWORD} \
-          -e SSO_EMAIL=${SSO_EMAIL} \
-          -e SSO_PASSWORD=${SSO_PASSWORD} \
-          -e KICKBOX_NG_URL=${KICKBOX_NG_URL} \
-          -e KICKBOX_NG_ADMIN_URL=${KICKBOX_NG_ADMIN_URL} \
+        docker container run -v "${{ inputs.results-path }}":"/tmp/reports"
           --network=host -i ${{ inputs.selenium-image }} \
-          ./bin/improve-selenium "suites/${{ inputs.suite }}" -d "${{ inputs.results-path }}" || FAILED=1
+          ./build/distributions/improve-selenium-1.0-SNAPSHOT/bin/improve-selenium "suites/${{ inputs.suite }}" -d "${{ inputs.results-path }}" || FAILED=1
         echo "::set-output name=sanity-failed::$FAILED"
 
     - name: Break if failed
