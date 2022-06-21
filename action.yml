@@ -64,7 +64,7 @@ runs:
         export FAILED=0
         echo ./build/distributions/improve-selenium-1.0-SNAPSHOT/bin/improve-selenium "suites/${{ inputs.suite }}" -d "${{ inputs.results-path }}"
 
-        docker container run -v "${{ inputs.results-path }}":"/tmp/reports"
+        docker container run -v "${{ inputs.results-path }}":"/tmp/reports" --rm \
           --network=host -i ${{ inputs.selenium-image }} \
           ./build/distributions/improve-selenium-1.0-SNAPSHOT/bin/improve-selenium "suites/${{ inputs.suite }}" -d "${{ inputs.results-path }}" || FAILED=1
         echo "::set-output name=sanity-failed::$FAILED"
